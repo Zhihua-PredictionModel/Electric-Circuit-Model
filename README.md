@@ -1,3 +1,3 @@
-# Electric-Circuit-Model
+# Revised Electric Circuit Model
 
-Github project for paper "Electric Circuit XXX"
+Github project for paper "XXX"
