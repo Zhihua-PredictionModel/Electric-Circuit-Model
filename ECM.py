@@ -15,8 +15,6 @@ from queue import Queue
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from multiprocessing import process
 
-# project prefix
-PROJECT_PREFIX = '/home/zhong/Bridge/'
 
 # preprocess raw GPS data and calculate velocity and population for each node
 # input_file_path: raw GPS data path
