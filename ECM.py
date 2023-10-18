@@ -22,106 +22,19 @@ PROJECT_PREFIX = '/home/zhong/Bridge/'
 # input_file_path: raw GPS data path
 # output_file_folder: folder to store output of velocity and population
 # unit of resolution: km (smallest resolution: 0.5)
-# version: Shida Yohei's ECM
-def preprocess_data_backup(input_file_path, output_file_folder, resolution, columns_names=['dailyid','dayofweek', 'hour', 'minute','latitude', 'longitude','os',
-         'home_countryname','accuracy', 'speed', 'course', 'prefcode', 'citycode', 
-         'mesh100mid', 'home_prefcode', 'home_citycode', 'workplace_prefcode',
-         'workplace_citycode'], show=False):
-    # check whether file exists
+
+
+def preprocess_data(input_file_path, output_file_folder, resolution, show=False):
     if (os.path.exists(input_file_path) == False) | (os.path.exists(output_file_folder) == False):
         print('file does not exist')
         raise
     # load data
-    data = pd.read_csv(input_file_path, names=columns_names)
-    data_len = len(data)
-    # file save name
-    save_name = input_file_path[-12:-4]
-    # normalization
-    # population of Japan: 126146099
-    #normalize_population = (len(data['dailyid'].unique()) / 125927902)
-    # remove people without velocity
-    data = data[data['speed'] != 0]
-    data = data[data['speed'].isnull() == False]
-    # transfrom hour and minute to second
-    data['second'] = ((data['hour'] * 60) + data['minute']) * 60
-    # transform time to km/h and decompose to speed_x and speed_y
-    data['speed'] = data['speed'] * 3.6
-    data = data[data['speed'] <= 320]
-    # divide by the total population in 2020 in Japan
-    #data['speed'] = data['speed'] / normalize_population
-    # calculate the x-y component of velocity of a user
-    data['course_x'] = data['course'].apply(lambda x : math.sin(np.round(math.radians(x), 2)))
-    data['course_y'] = data['course'].apply(lambda x : math.cos(np.round(math.radians(x), 2)))
-    data['speed_x'] = data['course_x'] * data['speed']
-    data['speed_y'] = data['course_y'] * data['speed']
-    # data.sort_values(by = ['mesh_500', 'dailyid', 'second'], inplace=True)
-    # remove blank values
-    data = data[data['speed_x'].isnull() == False]
-    #data = data[(data['speed_x'] != 0) | (data['speed_y'] != 0)]
-    # convert the meshID to unified id_x, id_y, and id_str (basic size: 0.5 km) 
-    data['id_x' + '_' + str(int(resolution * 1000))] = mpb.longitude_to_id_x(data['longitude'], size=resolution)
-    data['id_y' + '_' + str(int(resolution * 1000))] = mpb.latitude_to_id_y(data['latitude'], size=resolution)
-    data['id' + '_' + str(int(resolution * 1000))] = data['id' + '_x_' + str(int(resolution * 1000))].astype(str) + ',' + data['id' + '_y_' + str(int(resolution * 1000))].astype(str)
-    # traverse each time peroid
-    # 5 a.m. = 18000 second, 24 p.m. = 86400 second, 30 minute = 1800 second
-    for index, second in enumerate(range(18000, 86400, 1800)):
-        hour = int(second / 3600)
-        minute = int((second % 3600) / 60)
-        # filter out the data in necessary time interval
-        sub_data = data[(data['second'] >= second) & (data['second'] <= second + 1800)]
-        # initialize dataframe to store result
-        #preprocess_result = data['id' + '_' + str(int(resolution * 1000))]
-        preprocess_result = pd.DataFrame()
-        preprocess_result['id' + '_' + str(int(resolution * 1000))] = data['id' + '_' + str(int(resolution * 1000))].unique()
-        # calculate the mean velocity of a grid
-        user_count = sub_data['dailyid'].value_counts().reset_index()
-        user_count.columns = ['dailyid', 'count']
-        sub_data = pd.merge(sub_data, user_count, on='dailyid', how='left')
-        sub_data['speed_x_count'] = sub_data['speed_x'] / sub_data['count']
-        speed_x_mean = sub_data.groupby(['id' + '_' + str(int(resolution * 1000)), 'dailyid'])['speed_x_count'].sum().reset_index()
-        speed_x_mean.columns = ['id' + '_' + str(int(resolution * 1000)), 'dailyid', 'speed_x_mean']
-        speed_x_mean = speed_x_mean.groupby(['id' + '_' + str(int(resolution * 1000))])['speed_x_mean'].mean().reset_index()
-        sub_data['speed_y_count'] = sub_data['speed_y'] / sub_data['count']
-        speed_y_mean = sub_data.groupby(['id' + '_' + str(int(resolution * 1000)), 'dailyid'])['speed_y_count'].sum().reset_index()
-        speed_y_mean.columns = ['id' + '_' + str(int(resolution * 1000)), 'dailyid', 'speed_y_mean']
-        speed_y_mean = speed_y_mean.groupby(['id' + '_' + str(int(resolution * 1000))])['speed_y_mean'].mean().reset_index()
-        # calculate the population in a grid
-        population = sub_data.groupby('id' + '_' + str(int(resolution * 1000)))['dailyid'].nunique().reset_index()
-        population.columns = ['id' + '_' + str(int(resolution * 1000)), 'population']
-        # merge the mean velocity
-        preprocess_result = pd.merge(preprocess_result, speed_x_mean, on=['id' + '_' + str(int(resolution * 1000))], how='left')
-        preprocess_result = pd.merge(preprocess_result, speed_y_mean, on=['id' + '_' + str(int(resolution * 1000))], how='left')
-        preprocess_result = pd.merge(preprocess_result, population, on=['id' + '_' + str(int(resolution * 1000))], how='left')
-        # remove population null area
-        #preprocess_result = preprocess_result[preprocess_result['population'].isnull() == False]
-        preprocess_result = preprocess_result[['id' + '_' + str(int(resolution * 1000)), 'speed_x_mean', 'speed_y_mean', 'population']]
-        preprocess_result.to_csv(output_file_folder + save_name + '-' + str(hour) + 
-                                 '-' + str(minute) + '-preprocessed.csv', index=False)
-    if show != False:
-        print('preprocess ' + save_name + 'for size ' + str(resolution * 1000) + 
-              ' is completed (data length: ' + str(data_len) + ')')
-
-# backup at 6-27, Shida's preprocess
-
-def preprocess_data(input_file_path, output_file_folder, resolution, city, columns_names = ['dailyid','dayofweek', 'hour', 'minute','latitude', 'longitude','os',
-         'home_countryname','accuracy', 'speed', 'course', 'prefcode', 'citycode', 
-         'mesh100mid', 'home_prefcode', 'home_citycode', 'workplace_prefcode',
-         'workplace_citycode'], show=False):
-    if (os.path.exists(input_file_path) == False) | (os.path.exists(output_file_folder) == False):
-        print('file does not exist')
-        raise
-    # load data
-    if city != 'All':
-        data = pd.read_csv(input_file_path, names=columns_names)
-    elif city == 'All':
-        data = pd.read_csv(input_file_path)
+    data = pd.read_csv(input_file_path)
     data_len = len(data)
     # file save name
     save_name = input_file_path[-12:-4]
     # normalization
     # population of Japan: 124490000
-    # normalize_population = (len(data['dailyid'].unique()) / 124490000)
-    # normalize_population = 2957390 / 124490000
     # remove people without velocity
     data = data[data['speed'] != 0]
     data = data[data['speed'].isnull() == False]
@@ -148,14 +61,11 @@ def preprocess_data(input_file_path, output_file_folder, resolution, city, colum
     # traverse each time peroid
     # 5 a.m. = 18000 second, 24 p.m. = 86400 second, 30 minute = 1800 second
     for index, second in enumerate(range(0, 86400, 1800)):
-    #for index, second in enumerate(range(18000, 86400, 1800)):
-        #if index != 0: continue
         hour = int(second / 3600)
         minute = int((second % 3600) / 60)
         # filter out the data in necessary time interval
         sub_data = data[(data['second'] >= second) & (data['second'] <= second + 1800)]
         # initialize dataframe to store result
-        #preprocess_result = data['id' + '_' + str(int(resolution * 1000))]
         preprocess_result = pd.DataFrame()
         preprocess_result['id' + '_' + str(int(resolution * 1000))] = sub_data['id' + '_' + str(int(resolution * 1000))].unique()
         # calculate the mean velocity of a grid
