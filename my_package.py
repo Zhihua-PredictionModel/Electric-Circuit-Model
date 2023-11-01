@@ -5,7 +5,7 @@ import os
 # for the map created by Koike Hajime
 # available parameter size: 0.5, 1, 2, 4, 8, 16(km)
 # function to transfrom longitude to relative coordinate x
-def longitude_to_id_x(longitude, resolution):
+def longitude_to_id_x(longitude, resolution=0.5):
     if resolution == 0.5:
         min_longitude = 122.934560
         min_latitude = 20.426987
@@ -34,7 +34,7 @@ def longitude_to_id_x(longitude, resolution):
     return id_x
 
 # function to transfrom latitude to relative coordinate y
-def latitude_to_id_y(latitude, resolution):
+def latitude_to_id_y(latitude, resolution=0.5):
     if resolution == 0.5:
         min_longitude = 122.934560
         min_latitude = 20.426987
@@ -63,7 +63,7 @@ def latitude_to_id_y(latitude, resolution):
     return id_y
 
 # function to transform relative coordinate x to longitude
-def id_x_to_longitude(id_x, resolution):
+def id_x_to_longitude(id_x, resolution=0.5):
     if resolution == 0.5:
         min_longitude = 122.934560
         min_latitude = 20.426987
@@ -91,7 +91,7 @@ def id_x_to_longitude(id_x, resolution):
     return longitude
 
 # function to transform relative coordinate y to latitude
-def id_y_to_latitude(id_y, resolution):
+def id_y_to_latitude(id_y, resolution=0.5):
     if resolution == 0.5:
         min_longitude = 122.934560
         min_latitude = 20.426987
@@ -119,7 +119,7 @@ def id_y_to_latitude(id_y, resolution):
     return latitude
 
 # add longitude and latitude to dataframe when id is given    
-def add_geometry(data, resolution, duplicate=False):
+def add_geometry(data, resolution=0.5, duplicate=False):
     data = data.copy()
     resolution_index = str(int(resolution * 1000))
     data['id_x_' + resolution_index] = data['id_' + resolution_index].apply(lambda x:x.split(',')[0]).astype(int)
@@ -132,7 +132,7 @@ def add_geometry(data, resolution, duplicate=False):
     return data
 
 # convert longitude and latitude to id according to resolution 
-def lon_lat_to_id(longitude, latitude, resolution):
+def lon_lat_to_id(longitude, latitude, resolution=0.5):
     id_x = longitude_to_id_x(np.array(longitude), resolution=resolution)
     id_y = latitude_to_id_y(np.array(latitude), resolution=resolution)
     return str(id_x) + ',' + str(id_y)
