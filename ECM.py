@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 import math
-import my_package_bridge as mpb
+import my_package as mpb
 import subprocess
 import os
 from scipy.sparse import linalg
