@@ -149,7 +149,7 @@ def do_preprocess_task(preprocess_task, max_workers):
     return future_list
 
 # resoution is only for ID setting
-def cal_current(input_file_path, resolution):
+def cal_current(input_file_path, resolution=0.5):
     # load data
     data = pd.read_csv(input_file_path)
     ID = 'id_' + str(int(resolution * 1000))
@@ -196,7 +196,7 @@ def cal_current(input_file_path, resolution):
     return current
 
 # calculate current time series
-def cal_CTS(weekday_list, resolution, city, year, mode):
+def cal_CTS(weekday_list, resolution=0.5, city, year, mode):
     # check file integrity
     for weekday in weekday_list:
         for index, second in enumerate(range(18000, 86400, 1800)):
@@ -256,7 +256,7 @@ def do_current_task(current_task, max_workers):
     return future_list
 
 # calculate resistance
-def cal_resistance(month_list, resolution, city, year, mode, time_peroid=[18000, 86400]):
+def cal_resistance(month_list, resolution=0.5, city, year, mode, time_peroid=[18000, 86400]):
     CTS = pd.DataFrame()
     for month in month_list:
         input_file_path = (PROJECT_PREFIX + 'data/renormalization_' + str(mode) + 
@@ -299,14 +299,9 @@ def cal_resistance(month_list, resolution, city, year, mode, time_peroid=[18000,
     resistance.to_csv(resistance_output_file_path, index=False)
     CTS.to_csv(voltage_output_file_path, index=False)
   
-
-
-
-
-    
 # visualization
 # current spatial plot
-def plot_current(data, time_index, resolution,clim_min=None, clim_max=None, mode=0,     headwidth=3, scale=1, width=0.0017):
+def plot_current(data, time_index, resolution=0.5, clim_min=None, clim_max=None, mode=0, headwidth=3, scale=1, width=0.0017):
     #time_index = str(time_index)
     hour = int(time_index.split('-')[0])
     minute = int(time_index.split('-')[1])
