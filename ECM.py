@@ -21,6 +21,8 @@ from multiprocessing import process
 # output_file_folder: folder to store output of velocity and population
 # unit of resolution: km (smallest resolution: 0.5)
 
+# define project file path
+PROJECT_PREFIX = 'Your project file path'
 
 def preprocess_data(input_file_path, output_file_folder, resolution=0.5, show=False):
     if (os.path.exists(input_file_path) == False) | (os.path.exists(output_file_folder) == False):
