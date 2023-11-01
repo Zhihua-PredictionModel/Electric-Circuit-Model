@@ -198,7 +198,7 @@ def cal_current(input_file_path, resolution=0.5):
     return current
 
 # calculate current time series
-def cal_CTS(weekday_list, resolution=0.5, city, year, mode):
+def cal_CTS(weekday_list, city, year, mode, resolution=0.5):
     # check file integrity
     for weekday in weekday_list:
         for index, second in enumerate(range(18000, 86400, 1800)):
@@ -258,7 +258,7 @@ def do_current_task(current_task, max_workers):
     return future_list
 
 # calculate resistance
-def cal_resistance(month_list, resolution=0.5, city, year, mode, time_peroid=[18000, 86400]):
+def cal_resistance(month_list, city, year, mode, time_peroid=[18000, 86400], resolution=0.5):
     CTS = pd.DataFrame()
     for month in month_list:
         input_file_path = (PROJECT_PREFIX + 'data/renormalization_' + str(mode) + 
