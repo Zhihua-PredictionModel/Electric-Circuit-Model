@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 
-# for the map created by Koike Hajime
+# map the map of Japan into meshes 
 # available parameter size: 0.5, 1, 2, 4, 8, 16(km)
 # function to transfrom longitude to relative coordinate x
 def longitude_to_id_x(longitude, resolution=0.5):
