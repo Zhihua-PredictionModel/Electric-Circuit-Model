@@ -2,9 +2,13 @@
 
 Please cite our paper first before you use our shared codes.
 
-Github project for paper "Novel approaches to urban human mobility: a physical analogy of electric circuit network based on GPS data"
+Author: Zhihua Zhong, Hideki Takayasu, Misako Takayasu
+
+Title: Novel approaches to urban human mobility: a physical analogy of electric circuit network based on GPS data
+
+Submitted to Scientific Reports 18/1/2024. 
 
 The open-source codes and hand-to-hand tutorial can be found here.
 
-If you meet any problem, please do not hesitate to contact me for further help through the following contact information
+If you encounter any problem, please do not hesitate to contact me for further help through the following contact information
 E-mail: zhong.z.af@m.titech.ac.jp
