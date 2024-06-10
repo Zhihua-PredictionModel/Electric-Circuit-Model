@@ -1,12 +1,14 @@
 # Revised Electric Circuit Model
 
-Please cite our paper first before you use our shared codes.
+We recommend to cite our paper before use our shared codes.
+
+Citation: Human mobility description by physical analogy of electric circuit network based on gps data (2024), arXiv:2403.19988 [physics.soc- ph].
 
 Author: Zhihua Zhong, Hideki Takayasu, Misako Takayasu
 
-Title: Novel approaches to urban human mobility: a physical analogy of electric circuit network based on GPS data
+Title: Human mobility description by physical analogy of electric circuit network based on gps data.
 
-Submitted to Scientific Reports 18/1/2024. 
+Journal: Scientific Reports
 
 The open-source codes and hand-to-hand tutorial can be found here.
 
